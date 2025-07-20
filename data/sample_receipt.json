@@ -1,0 +1,60 @@
+{
+  "imageUrl": "https://omni-demo-data.s3.us-east-1.amazonaws.com/templates/receipt.png",
+  "metadata": {
+    "orientation": 0,
+    "documentQuality": "clean",
+    "resolution": [612, 792],
+    "language": "EN"
+  },
+  "jsonSchema": {
+    "type": "object",
+    "required": ["merchant", "receipt_details", "totals"],
+    "properties": {
+      "merchant": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {"type": "string"},
+          "phone": {"type": "string"},
+          "address": {"type": "string"}
+        }
+      },
+      "receipt_details": {
+        "type": "object",
+        "required": ["date"],
+        "properties": {
+          "date": {"type": "string"},
+          "time": {"type": "string"},
+          "receipt_number": {"type": "string"}
+        }
+      },
+      "totals": {
+        "type": "object",
+        "required": ["total"],
+        "properties": {
+          "tax": {"type": "number"},
+          "total": {"type": "number"},
+          "subtotal": {"type": "number"}
+        }
+      }
+    }
+  },
+  "trueJsonOutput": {
+    "merchant": {
+      "name": "Nick the Greek Souvlaki & Gyro House",
+      "phone": "(415) 757-0426",
+      "address": "121 Spear Street, Suite B08, San Francisco, CA 94105"
+    },
+    "receipt_details": {
+      "date": "November 8, 2024",
+      "time": "2:16 PM",
+      "receipt_number": "NKZ1"
+    },
+    "totals": {
+      "tax": 6.18,
+      "total": 48.43,
+      "subtotal": 42.25
+    }
+  },
+  "trueMarkdownOutput": "**NICK THE GREEK**\n\nSOUVLAKI & GYRO HOUSE\n\n**San Francisco**\n\n121 spear street\nSuite B08\nsan francisco, CA\n94105\n(415) 757-0426\n\nNovember 8, 2024\n2:16 PM\n\nTicket: 17\nReceipt: NKZ1\n\n**TO GO**\n\nBeef/Lamb Gyro Pita $12.50\nGyro Bowl $13.25\nPork Gyro Pita $16.50\n\nSubtotal $42.25\nSF Mandate (6%) $2.54\n8.625% (8.625%) $3.64\n\n**Total** $48.43"
+}
