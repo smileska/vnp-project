@@ -1,5 +1,3 @@
-"""OpenAI model provider."""
-
 import json
 import time
 from typing import Dict, Any, Tuple
@@ -8,18 +6,13 @@ from src.models.base import BaseModelProvider
 from src.types.models import Usage
 from src.config import Config
 
-
 class OpenAIProvider(BaseModelProvider):
-    """OpenAI model provider for GPT models."""
-
     def __init__(self, model_name: str):
         super().__init__(model_name)
         self.client = openai.OpenAI(api_key=Config.OPENAI_API_KEY)
 
     async def perform_ocr(self, image_url: str) -> Tuple[str, Usage]:
-        """Perform OCR using OpenAI vision models."""
         start_time = time.time()
-
         try:
             response = self.client.chat.completions.create(
                 model=self.model_name,
@@ -48,16 +41,12 @@ RULES:
                 max_tokens=4000,
                 temperature=0
             )
-
             duration = time.time() - start_time
-
-            # Extract usage information
             usage_data = response.usage
             input_cost, output_cost, total_cost = self.calculate_cost(
                 usage_data.prompt_tokens,
                 usage_data.completion_tokens
             )
-
             usage = Usage(
                 duration=duration,
                 input_tokens=usage_data.prompt_tokens,
@@ -67,10 +56,8 @@ RULES:
                 output_cost=output_cost,
                 total_cost=total_cost
             )
-
             text = response.choices[0].message.content
             return text, usage
-
         except Exception as e:
             duration = time.time() - start_time
             usage = Usage(duration=duration)
@@ -81,12 +68,9 @@ RULES:
             text: str,
             json_schema: Dict[str, Any]
     ) -> Tuple[Dict[str, Any], Usage]:
-        """Extract JSON from text using OpenAI."""
         start_time = time.time()
-
         try:
             schema_str = json.dumps(json_schema, indent=2)
-
             response = self.client.chat.completions.create(
                 model=self.model_name,
                 messages=[
@@ -107,16 +91,12 @@ Return only valid JSON that matches the schema. If some fields are not found, us
                 temperature=0,
                 response_format={"type": "json_object"}
             )
-
             duration = time.time() - start_time
-
-            # Extract usage information
             usage_data = response.usage
             input_cost, output_cost, total_cost = self.calculate_cost(
                 usage_data.prompt_tokens,
                 usage_data.completion_tokens
             )
-
             usage = Usage(
                 duration=duration,
                 input_tokens=usage_data.prompt_tokens,
@@ -126,12 +106,9 @@ Return only valid JSON that matches the schema. If some fields are not found, us
                 output_cost=output_cost,
                 total_cost=total_cost
             )
-
             json_text = response.choices[0].message.content
             extracted_json = json.loads(json_text)
-
             return extracted_json, usage
-
         except Exception as e:
             duration = time.time() - start_time
             usage = Usage(duration=duration)
@@ -142,12 +119,9 @@ Return only valid JSON that matches the schema. If some fields are not found, us
             image_url: str,
             json_schema: Dict[str, Any]
     ) -> Tuple[Dict[str, Any], Usage]:
-        """Extract JSON directly from image using OpenAI vision."""
         start_time = time.time()
-
         try:
             schema_str = json.dumps(json_schema, indent=2)
-
             response = self.client.chat.completions.create(
                 model=self.model_name,
                 messages=[
@@ -173,16 +147,12 @@ Return only valid JSON that matches the schema. If some fields are not found, us
                 temperature=0,
                 response_format={"type": "json_object"}
             )
-
             duration = time.time() - start_time
-
-            # Extract usage information
             usage_data = response.usage
             input_cost, output_cost, total_cost = self.calculate_cost(
                 usage_data.prompt_tokens,
                 usage_data.completion_tokens
             )
-
             usage = Usage(
                 duration=duration,
                 input_tokens=usage_data.prompt_tokens,
@@ -192,12 +162,9 @@ Return only valid JSON that matches the schema. If some fields are not found, us
                 output_cost=output_cost,
                 total_cost=total_cost
             )
-
             json_text = response.choices[0].message.content
             extracted_json = json.loads(json_text)
-
             return extracted_json, usage
-
         except Exception as e:
             duration = time.time() - start_time
             usage = Usage(duration=duration)

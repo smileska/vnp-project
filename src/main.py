@@ -1,5 +1,3 @@
-"""Main benchmark runner for LLM OCR comparison."""
-
 import asyncio
 import os
 from datetime import datetime
@@ -14,14 +12,10 @@ from src.evaluation.text_similarity import calculate_text_similarity
 from src.evaluation.json_accuracy import calculate_json_accuracy
 from src.types.models import BenchmarkResult, TestDocument, ModelConfig
 
-
 async def process_document_with_model(
     document: TestDocument,
     model_config: ModelConfig
 ) -> BenchmarkResult:
-    """Process a single document with a single model configuration."""
-
-    # Initialize result
     result = BenchmarkResult(
         file_url=document.imageUrl,
         metadata=document.metadata,
@@ -35,7 +29,6 @@ async def process_document_with_model(
 
     try:
         if model_config.direct_image_extraction:
-            # Direct image to JSON extraction
             provider = get_model_provider(model_config.extraction_model or model_config.ocr_model)
             extracted_json, usage = await provider.extract_json_from_image(
                 document.imageUrl,
@@ -43,15 +36,11 @@ async def process_document_with_model(
             )
             result.predicted_json = extracted_json
             result.usage = usage
-
         else:
-            # Two-step: OCR then extraction
-            # Step 1: OCR
             ocr_provider = get_model_provider(model_config.ocr_model)
             extracted_text, ocr_usage = await ocr_provider.perform_ocr(document.imageUrl)
             result.predicted_markdown = extracted_text
 
-            # Step 2: JSON extraction (if extraction model specified)
             if model_config.extraction_model:
                 extraction_provider = get_model_provider(model_config.extraction_model)
                 extracted_json, extraction_usage = await extraction_provider.extract_json_from_text(
@@ -60,7 +49,6 @@ async def process_document_with_model(
                 )
                 result.predicted_json = extracted_json
 
-                # Combine usage stats
                 total_usage = ocr_usage.copy() if ocr_usage else None
                 if total_usage and extraction_usage:
                     if total_usage.duration and extraction_usage.duration:
@@ -76,7 +64,6 @@ async def process_document_with_model(
             else:
                 result.usage = ocr_usage
 
-        # Calculate evaluation metrics
         if result.predicted_markdown:
             result.text_similarity = calculate_text_similarity(
                 document.trueMarkdownOutput,
@@ -97,9 +84,7 @@ async def process_document_with_model(
 
     return result
 
-
 def check_api_keys():
-    """Check if required API keys are available."""
     print("🔑 Checking API keys...")
 
     checks = []
@@ -122,7 +107,6 @@ def check_api_keys():
     for check in checks:
         print(f"  {check}")
 
-    # Check if at least one API key is available
     if not any([Config.GOOGLE_API_KEY, Config.TOGETHER_API_KEY, Config.GROQ_API_KEY]):
         print("\n❌ ERROR: No API keys found!")
         print("Please add at least one API key to your .env file:")
@@ -134,21 +118,16 @@ def check_api_keys():
 
     return True
 
-
 async def run_benchmark():
-    """Run the complete benchmark."""
     print("🚀 Starting LLM OCR Comparison Benchmark")
     print("=" * 50)
 
-    # Check API keys
     if not check_api_keys():
         return
 
-    # Show available models
     available_models = get_available_models()
     print(f"\n🤖 Available models: {', '.join(available_models)}")
 
-    # Load test documents
     documents = load_test_documents(Config.DATA_DIR)
     if not documents:
         print("\n❌ No test documents found!")
@@ -165,7 +144,6 @@ async def run_benchmark():
     print(f"\n📄 Loaded {len(documents)} test documents")
     print(f"🔧 Testing {len(MODEL_CONFIGURATIONS)} model configurations")
 
-    # Filter model configurations to only include available models
     valid_configs = []
     for config in MODEL_CONFIGURATIONS:
         if config.ocr_model in available_models:
@@ -182,11 +160,9 @@ async def run_benchmark():
 
     print(f"✅ Using {len(valid_configs)} valid model configurations")
 
-    # Create results directory
     results_dir = create_results_folder(Config.RESULTS_DIR)
     print(f"\n📁 Results will be saved to: {results_dir}")
 
-    # Run benchmark
     all_results = []
     total_tasks = len(documents) * len(valid_configs)
 
@@ -205,24 +181,20 @@ async def run_benchmark():
                 all_results.append(result.dict())
                 pbar.update(1)
 
-    # Save results
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     results_file = os.path.join(results_dir, f"benchmark_results_{timestamp}.json")
     save_results(all_results, results_file)
 
-    # Calculate and display summary statistics
     successful_results = [r for r in all_results if not r.get('error')]
     total_results = len(all_results)
     success_rate = len(successful_results) / total_results * 100 if total_results > 0 else 0
 
-    # Calculate average metrics
     json_accuracies = [r['json_accuracy'] for r in successful_results if r.get('json_accuracy') is not None]
     text_similarities = [r['text_similarity'] for r in successful_results if r.get('text_similarity') is not None]
 
     avg_json_accuracy = sum(json_accuracies) / len(json_accuracies) if json_accuracies else 0
     avg_text_similarity = sum(text_similarities) / len(text_similarities) if text_similarities else 0
 
-    # Print summary
     print("\n" + "=" * 50)
     print("📊 BENCHMARK COMPLETE!")
     print(f"✅ Processed {len(documents)} documents")
@@ -239,7 +211,6 @@ async def run_benchmark():
     print("1. View results in dashboard:")
     print("   cd dashboard && streamlit run app.py")
     print("2. Or check the results JSON file directly")
-
 
 if __name__ == "__main__":
     asyncio.run(run_benchmark())

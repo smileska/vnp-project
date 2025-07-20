@@ -1,13 +1,9 @@
-"""Data loading utilities."""
-
 import os
 import json
 from typing import List
 from src.types.models import TestDocument
 
-
 def load_test_documents(data_dir: str) -> List[TestDocument]:
-    """Load test documents from JSON files in the data directory."""
     documents = []
 
     if not os.path.exists(data_dir):
@@ -33,9 +29,7 @@ def load_test_documents(data_dir: str) -> List[TestDocument]:
 
     return documents
 
-
 def save_results(results: List[dict], output_path: str) -> None:
-    """Save benchmark results to a JSON file."""
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     with open(output_path, 'w', encoding='utf-8') as f:

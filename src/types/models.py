@@ -1,20 +1,14 @@
-"""Type definitions for the OCR benchmark."""
-
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
 from pydantic import BaseModel
 
-
 @dataclass
 class ModelConfig:
-    """Configuration for a model to test."""
     ocr_model: str
     extraction_model: Optional[str] = None
     direct_image_extraction: bool = False
 
-
 class Usage(BaseModel):
-    """Usage statistics for a request."""
     duration: Optional[float] = None
     input_tokens: Optional[int] = None
     output_tokens: Optional[int] = None
@@ -23,18 +17,14 @@ class Usage(BaseModel):
     output_cost: Optional[float] = None
     total_cost: Optional[float] = None
 
-
 class TestDocument(BaseModel):
-    """A test document with ground truth data."""
     imageUrl: str
     metadata: Dict[str, Any]
     jsonSchema: Dict[str, Any]
     trueJsonOutput: Dict[str, Any]
     trueMarkdownOutput: str
 
-
 class BenchmarkResult(BaseModel):
-    """Result of running benchmark on one document with one model."""
     file_url: str
     metadata: Dict[str, Any]
     ocr_model: str
