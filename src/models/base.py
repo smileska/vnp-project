@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Tuple, Optional
-from src.types.models import Usage
+from typing import Dict, Any, Tuple
+from model_types.models import Usage
 
 
 class BaseModelProvider(ABC):

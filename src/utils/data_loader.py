@@ -1,7 +1,7 @@
 import os
 import json
 from typing import List
-from src.types.models import TestDocument
+from model_types.models import TestDocument
 
 def load_test_documents(data_dir: str) -> List[TestDocument]:
     documents = []
