@@ -13,6 +13,7 @@ class Config:
     LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
     DATA_DIR = "../data"
 
+# todo use better ocr models
 MODEL_CONFIGURATIONS = [
     ModelConfig(ocr_model="llama3.2", extraction_model="llama3.2"),
     ModelConfig(ocr_model="llava", extraction_model="llava"),
@@ -22,11 +23,6 @@ MODEL_CONFIGURATIONS = [
 
 
 TOKEN_COSTS = {
-    "gemini-2.0-flash-001": {"input": 0.10, "output": 0.40},
-    "gemini-1.5-pro": {"input": 1.25, "output": 5.00},
-    "gemini-1.5-flash": {"input": 0.075, "output": 0.30},
-    "meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo": {"input": 0.18, "output": 0.18},
-    "meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo": {"input": 1.20, "output": 1.20},
     "llama3.2-vision": {"input": 0.0, "output": 0.0},
     "llava": {"input": 0.0, "output": 0.0},
 }
