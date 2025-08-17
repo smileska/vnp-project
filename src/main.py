@@ -5,10 +5,15 @@ import re
 from datetime import datetime
 from typing import Tuple, Optional, Any
 
-from config import Config, MODEL_CONFIGURATIONS
+from config import Config, get_filtered_model_configurations, print_configuration_summary
 from utils.data_loader import load_test_documents, save_results
 from utils.file_utils import create_results_folder
-from models.registry import get_model_provider, get_available_models
+from models.registry import (
+    get_model_provider,
+    get_available_models,
+    is_ocr_only_model,
+    print_model_availability
+)
 from evaluation.text_similarity import calculate_text_similarity
 from evaluation.json_accuracy import calculate_json_accuracy
 from model_types.models import BenchmarkResult, TestDocument, ModelConfig
@@ -130,7 +135,12 @@ async def process_document_with_model(
     )
 
     try:
+        ocr_is_ocr_only = is_ocr_only_model(model_config.ocr_model)
+
         if model_config.direct_image_extraction:
+            if ocr_is_ocr_only:
+                raise ValueError("Direct image extraction not supported for OCR-only models")
+
             provider = get_model_provider(model_config.extraction_model or model_config.ocr_model)
 
             try:
@@ -151,21 +161,17 @@ async def process_document_with_model(
                 result.usage = usage
 
             except Exception as provider_error:
-                # If the provider fails with JSON parsing, try to extract from the error message
                 error_str = str(provider_error)
                 if "Response:" in error_str:
-                    # Extract the full response from the error message
                     response_start = error_str.find("Response:") + len("Response:")
                     response_part = error_str[response_start:].strip()
 
                     extracted_json, extraction_error = robust_json_extraction(response_part)
-                    if extracted_json is not None:  # Could be empty dict {}
+                    if extracted_json is not None:
                         result.predicted_json = extracted_json
                         print(f"✅ Recovered JSON from error message for {document.imageUrl}")
-                        # Set usage to None since we couldn't get it from the provider
                         result.usage = None
                     else:
-                        # Still couldn't extract, but log what we tried
                         print(f"⚠️  Failed to recover JSON from error. Extraction error: {extraction_error}")
                         raise provider_error
                 else:
@@ -176,6 +182,9 @@ async def process_document_with_model(
             result.predicted_markdown = extracted_text
 
             if model_config.extraction_model:
+                if is_ocr_only_model(model_config.extraction_model):
+                    raise ValueError(f"Cannot use OCR-only model '{model_config.extraction_model}' for JSON extraction")
+
                 extraction_provider = get_model_provider(model_config.extraction_model)
 
                 try:
@@ -207,10 +216,8 @@ async def process_document_with_model(
                     result.usage = total_usage or extraction_usage
 
                 except Exception as provider_error:
-                    # If the provider fails with JSON parsing, try to extract from the error message
                     error_str = str(provider_error)
                     if "Response:" in error_str:
-                        # Extract the full response from the error message
                         response_start = error_str.find("Response:") + len("Response:")
                         response_part = error_str[response_start:].strip()
 
@@ -220,7 +227,6 @@ async def process_document_with_model(
                             result.usage = ocr_usage
                             print(f"✅ Recovered JSON from error message for {document.imageUrl}")
                         else:
-                            # Still couldn't extract, but log what we tried
                             print(f"⚠️  Failed to recover JSON from error. Extraction error: {extraction_error}")
                             raise provider_error
                     else:
@@ -253,8 +259,10 @@ async def run_benchmark():
     print("🚀 Starting LLM OCR Comparison Benchmark")
     print("=" * 50)
 
+    print_model_availability()
+
     available_models = get_available_models()
-    print(f"\n🤖 Available models: {', '.join(available_models)}")
+    print(f"\n🤖 Total available models: {len(available_models)}")
 
     documents = load_test_documents(Config.DATA_DIR)
     if not documents:
@@ -270,29 +278,28 @@ async def run_benchmark():
         return
 
     print(f"\n📄 Loaded {len(documents)} test documents")
-    print(f"🔧 Testing {len(MODEL_CONFIGURATIONS)} model configurations")
 
-    valid_configs = []
-    for config in MODEL_CONFIGURATIONS:
-        if config.ocr_model in available_models:
-            if not config.extraction_model or config.extraction_model in available_models:
-                valid_configs.append(config)
-            else:
-                print(f"⚠️  Skipping config: extraction model '{config.extraction_model}' not available")
-        else:
-            print(f"⚠️  Skipping config: OCR model '{config.ocr_model}' not available")
+    valid_configs = get_filtered_model_configurations()
 
     if not valid_configs:
-        print("❌ No valid model configurations found!")
+        print("\n❌ No valid model configurations found!")
+        print("Please install the required dependencies:")
+        print("  - For PaddleOCR: pip install paddleocr")
+        print("  - For EasyOCR: pip install easyocr")
+        print("  - For Tesseract: pip install pytesseract pillow")
+        print("    (Also install Tesseract binary)")
         return
 
-    print(f"✅ Using {len(valid_configs)} valid model configurations")
+    print_configuration_summary()
+
+    print(f"\n🔧 Testing {len(valid_configs)} model configurations")
 
     results_dir = create_results_folder(Config.RESULTS_DIR)
     print(f"\n📁 Results will be saved to: {results_dir}")
 
     all_results = []
     total_tasks = len(documents) * len(valid_configs)
+    completed_tasks = 0
 
     for model_config in valid_configs:
         model_name = f"{model_config.ocr_model}"
@@ -305,18 +312,48 @@ async def run_benchmark():
 
         for i, document in enumerate(documents, 1):
             print(f"  📄 Document {i}/{len(documents)}: {os.path.basename(document.imageUrl)}")
-            result = await process_document_with_model(document, model_config)
-            all_results.append(result.model_dump())
 
-            # Print status for each document
-            if result.error:
-                print(f"    ❌ Error: {result.error}")
-            else:
-                if result.json_accuracy is not None:
-                    print(f"    ✅ JSON accuracy: {result.json_accuracy:.3f}")
-                if result.text_similarity is not None:
-                    print(f"    📝 Text similarity: {result.text_similarity:.3f}")
+            try:
+                result = await process_document_with_model(document, model_config)
+                all_results.append(result.model_dump())
 
+                if result.error:
+                    print(f"    ❌ Error: {result.error}")
+                else:
+                    status_msgs = []
+                    if result.json_accuracy is not None:
+                        status_msgs.append(f"JSON: {result.json_accuracy:.3f}")
+                    if result.text_similarity is not None:
+                        status_msgs.append(f"Text: {result.text_similarity:.3f}")
+                    if result.usage and result.usage.duration:
+                        status_msgs.append(f"Time: {result.usage.duration:.1f}s")
+
+                    if status_msgs:
+                        print(f"    ✅ {' | '.join(status_msgs)}")
+                    else:
+                        print(f"    ✅ Completed")
+
+            except Exception as e:
+                print(f"    ❌ Unexpected error: {e}")
+                # Create error result
+                error_result = BenchmarkResult(
+                    file_url=document.imageUrl,
+                    metadata=document.metadata,
+                    ocr_model=model_config.ocr_model,
+                    extraction_model=model_config.extraction_model or "",
+                    json_schema=document.jsonSchema,
+                    direct_image_extraction=model_config.direct_image_extraction,
+                    true_markdown=document.trueMarkdownOutput,
+                    true_json=document.trueJsonOutput,
+                    error=str(e)
+                )
+                all_results.append(error_result.model_dump())
+
+            completed_tasks += 1
+            progress = (completed_tasks / total_tasks) * 100
+            print(f"    📊 Overall progress: {completed_tasks}/{total_tasks} ({progress:.1f}%)")
+
+    # Save results
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     results_file = os.path.join(results_dir, f"benchmark_results_{timestamp}.json")
     save_results(all_results, results_file)
@@ -331,22 +368,59 @@ async def run_benchmark():
     avg_json_accuracy = sum(json_accuracies) / len(json_accuracies) if json_accuracies else 0
     avg_text_similarity = sum(text_similarities) / len(text_similarities) if text_similarities else 0
 
+    durations = [r.get('usage', {}).get('duration') for r in successful_results
+                 if r.get('usage') and r.get('usage', {}).get('duration')]
+    avg_duration = sum(d for d in durations if d) / len(durations) if durations else 0
+
     print("\n" + "=" * 50)
-    print("📊 BENCHMARK COMPLETE!")
-    print(f"✅ Processed {len(documents)} documents")
-    print(f"✅ Tested {len(valid_configs)} model configurations")
-    print(f"✅ Generated {len(all_results)} results")
-    print(f"📈 Success rate: {success_rate:.1f}%")
+    print("🎉 BENCHMARK COMPLETE!")
+    print("=" * 50)
+    print(f"📄 Documents processed: {len(documents)}")
+    print(f"🔧 Model configurations tested: {len(valid_configs)}")
+    print(f"📊 Total results generated: {len(all_results)}")
+    print(f"✅ Success rate: {success_rate:.1f}%")
+
     if json_accuracies:
-        print(f"📊 Average JSON accuracy: {avg_json_accuracy:.3f}")
+        print(f"🎯 Average JSON accuracy: {avg_json_accuracy:.3f}")
     if text_similarities:
-        print(f"📊 Average text similarity: {avg_text_similarity:.3f}")
-    print(f"📁 Results saved to: {results_file}")
+        print(f"📝 Average text similarity: {avg_text_similarity:.3f}")
+    if avg_duration > 0:
+        print(f"⏱️  Average processing time: {avg_duration:.1f}s")
+
+    print(f"💾 Results saved to: {results_file}")
+
+    print("\n📈 Results by Model Type:")
+    print("-" * 30)
+
+    ocr_model_results = {}
+    for result in successful_results:
+        ocr_model = result.get('ocr_model', 'unknown')
+        if ocr_model not in ocr_model_results:
+            ocr_model_results[ocr_model] = []
+        ocr_model_results[ocr_model].append(result)
+
+    for ocr_model, model_results in ocr_model_results.items():
+        if not model_results:
+            continue
+
+        model_json_accs = [r.get('json_accuracy') for r in model_results if r.get('json_accuracy') is not None]
+        model_text_sims = [r.get('text_similarity') for r in model_results if r.get('text_similarity') is not None]
+
+        avg_json = sum(model_json_accs) / len(model_json_accs) if model_json_accs else 0
+        avg_text = sum(model_text_sims) / len(model_text_sims) if model_text_sims else 0
+
+        print(f"  {ocr_model}:")
+        if avg_json > 0:
+            print(f"    JSON accuracy: {avg_json:.3f}")
+        if avg_text > 0:
+            print(f"    Text similarity: {avg_text:.3f}")
+        print(f"    Success count: {len(model_results)}")
 
     print("\n🎯 Next steps:")
-    print("1. View results in dashboard:")
+    print("1. View detailed results in dashboard:")
     print("   cd dashboard && streamlit run app.py")
-    print("2. Or check the results JSON file directly")
+    print("2. Or examine the results JSON file directly")
+    print("3. Install missing OCR libraries for more comparisons")
 
 
 if __name__ == "__main__":
