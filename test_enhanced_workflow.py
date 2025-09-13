@@ -4,7 +4,7 @@ import os
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-from workflows.enhanced_workflow import run_enhanced_benchmark
+from workflow.enhanced_workflow import run_enhanced_benchmark
 
 
 def main():
