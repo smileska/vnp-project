@@ -6,6 +6,7 @@ import requests
 from .base import BaseModelProvider
 from config import Config
 from model_types.models import Usage
+from utils.json_extractor import robust_json_extraction
 
 
 class ModelProvider(BaseModelProvider):
@@ -89,20 +90,11 @@ RULES:
         try:
             schema_str = json.dumps(json_schema, indent=2)
 
-            prompt = f"""Extract structured data from the following text according to this JSON schema:
+            prompt = f"""Extract JSON data from this text. Use the schema provided. Return ONLY JSON, no explanations.
 
-{schema_str}
+Schema: {schema_str}
 
-RULES:
-- Return ONLY valid JSON that matches the schema
-- If a field is not found in the text, use null
-- Ensure all required fields are present
-- Use the exact field names from the schema
-- Parse numbers as numbers, not strings
-- For dates, use the format found in the document
-
-Text to extract from:
-{text}
+Text: {text}
 
 JSON:"""
 
@@ -119,6 +111,7 @@ JSON:"""
             response.raise_for_status()
             result = response.json()
             response_text = result["response"]
+
             usage = Usage(
                 duration=time.time() - start_time,
                 input_tokens=0,
@@ -129,23 +122,15 @@ JSON:"""
                 total_cost=0.0
             )
 
-            response_text = response_text.strip()
+            # Use robust JSON extraction
+            fallback_data = {"error": "extraction_failed", "raw_text": text[:200]}
+            extracted_json, error = robust_json_extraction(response_text, fallback_data)
 
-            if response_text.startswith('```json'):
-                response_text = response_text[7:]
-            if response_text.startswith('```'):
-                response_text = response_text[3:]
-            if response_text.endswith('```'):
-                response_text = response_text[:-3]
-
-            extracted_json = json.loads(response_text.strip())
+            if error:
+                print(f"    ⚠️  JSON extraction issue: {error}")
 
             return extracted_json, usage
 
-        except json.JSONDecodeError as e:
-            duration = time.time() - start_time
-            usage = Usage(duration=duration)
-            raise Exception(f"Llama JSON parsing error: {str(e)}. Response: {response_text[:200]}")
         except Exception as e:
             duration = time.time() - start_time
             usage = Usage(duration=duration)
@@ -161,18 +146,9 @@ JSON:"""
         try:
             schema_str = json.dumps(json_schema, indent=2)
 
-            prompt = f"""Extract structured data from this image according to the following JSON schema:
+            prompt = f"""Extract JSON data from this image. Use the schema provided. Return ONLY JSON, no explanations.
 
-{schema_str}
-
-RULES:
-- Return ONLY valid JSON that matches the schema
-- If a field is not found in the image, use null
-- Ensure all required fields are present
-- Use the exact field names from the schema
-- Parse numbers as numbers, not strings
-- For dates, use the format found in the document
-- Read all text carefully and extract the requested information
+Schema: {schema_str}
 
 JSON:"""
 
@@ -191,6 +167,7 @@ JSON:"""
             response.raise_for_status()
             result = response.json()
             response_text = result["response"]
+
             usage = Usage(
                 duration=time.time() - start_time,
                 input_tokens=0,
@@ -201,23 +178,15 @@ JSON:"""
                 total_cost=0.0
             )
 
-            response_text = response_text.strip()
+            # Use robust JSON extraction
+            fallback_data = {"error": "extraction_failed"}
+            extracted_json, error = robust_json_extraction(response_text, fallback_data)
 
-            if response_text.startswith('```json'):
-                response_text = response_text[7:]
-            if response_text.startswith('```'):
-                response_text = response_text[3:]
-            if response_text.endswith('```'):
-                response_text = response_text[:-3]
-
-            extracted_json = json.loads(response_text.strip())
+            if error:
+                print(f"    ⚠️  JSON extraction issue: {error}")
 
             return extracted_json, usage
 
-        except json.JSONDecodeError as e:
-            duration = time.time() - start_time
-            usage = Usage(duration=duration)
-            raise Exception(f"Llama direct extraction JSON parsing error: {str(e)}. Response: {response_text[:200]}")
         except Exception as e:
             duration = time.time() - start_time
             usage = Usage(duration=duration)

@@ -69,7 +69,7 @@ class PaddleOCRProvider(OCROnlyProvider):
             raise ImportError("PaddleOCR not installed. Install with: pip install paddleocr")
 
         super().__init__("paddleocr")
-        self.ocr_engine = PaddleOCR(use_angle_cls=True, lang='en', show_log=False)
+        self.ocr_engine = PaddleOCR(use_angle_cls=True, lang='en')
 
     async def perform_ocr(self, image_url: str) -> Tuple[str, Usage]:
         start_time = time.time()
