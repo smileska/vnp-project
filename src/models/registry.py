@@ -29,7 +29,6 @@ SUPPORTED_MODELS = LLM_MODELS + OCR_MODELS
 
 
 def get_model_provider(model_name: str) -> BaseModelProvider:
-    """Get the appropriate model provider based on model name"""
     if model_name not in SUPPORTED_MODELS:
         available_models = get_available_models()
         raise ValueError(
@@ -51,27 +50,22 @@ def get_model_provider(model_name: str) -> BaseModelProvider:
 
 
 def get_available_models() -> list:
-    """Get list of all available models"""
     return SUPPORTED_MODELS
 
 
 def get_llm_models() -> list:
-    """Get list of available LLM models (for extraction)"""
     return LLM_MODELS
 
 
 def get_ocr_models() -> list:
-    """Get list of available OCR-only models"""
     return OCR_MODELS
 
 
 def is_ocr_only_model(model_name: str) -> bool:
-    """Check if a model is OCR-only (cannot do JSON extraction)"""
     return model_name in OCR_MODELS
 
 
 def print_model_availability():
-    """Print information about available models"""
     print("\n📋 Model Availability Report:")
     print("=" * 40)
 

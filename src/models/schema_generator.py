@@ -1,8 +1,3 @@
-"""
-Schema Generator and Evaluation Model for Dynamic OCR Workflows
-File: src/models/schema_generator.py
-"""
-
 import json
 import time
 import base64
@@ -14,7 +9,6 @@ from utils.json_extractor import robust_json_extraction
 
 
 class SchemaGenerator:
-    """Generates JSON schemas from document images using LLMs"""
 
     def __init__(self, model_name: str = "llava", base_url: str = None):
         self.model_name = model_name
@@ -22,7 +16,6 @@ class SchemaGenerator:
         self.headers = {"Content-Type": "application/json"}
 
     def _encode_image_url(self, image_url: str) -> str:
-        """Download and encode image as base64"""
         try:
             print(f"    📥 Downloading image from: {image_url}")
             response = requests.get(image_url, timeout=30, headers={
@@ -40,16 +33,6 @@ class SchemaGenerator:
             raise Exception(f"Failed to download and encode image: {str(e)}")
 
     async def generate_schema(self, image_url: str, document_type: str = "document") -> Tuple[Dict[str, Any], Usage]:
-        """
-        Generate a JSON schema by analyzing the document image
-
-        Args:
-            image_url: URL of the document image
-            document_type: Type hint for the document (receipt, invoice, form, etc.)
-
-        Returns:
-            Tuple of (json_schema_dict, usage_info)
-        """
         start_time = time.time()
 
         try:
@@ -87,7 +70,6 @@ Format:
             response_text = result["response"].strip()
 
             try:
-                # Use robust JSON extraction
                 fallback_schema = self._create_fallback_schema(document_type)
                 schema, error = robust_json_extraction(response_text, fallback_schema)
 
@@ -95,7 +77,6 @@ Format:
                     print(f"    ⚠️  {error}")
                     print(f"    📝 Using fallback schema")
 
-                # Validate that it's a proper JSON schema
                 if not isinstance(schema, dict) or "type" not in schema:
                     print(f"    ⚠️  Generated invalid schema, using fallback")
                     schema = fallback_schema
@@ -118,7 +99,6 @@ Format:
             raise Exception(f"Schema generation error: {str(e)}")
 
     def _create_fallback_schema(self, document_type: str) -> Dict[str, Any]:
-        """Create a fallback schema when generation fails"""
         if document_type == "receipt":
             return {
                 "type": "object",
@@ -151,7 +131,6 @@ Format:
             }
 
     def validate_schema(self, schema: Dict[str, Any]) -> bool:
-        """Basic validation of generated schema"""
         if not isinstance(schema, dict):
             return False
 
@@ -160,10 +139,6 @@ Format:
 
 
 class EvaluationModel:
-    """
-    Combines OCR results with JSON schema to produce structured JSON output
-    """
-
     def __init__(self, model_name: str = "llama3.2", base_url: str = None):
         self.model_name = model_name
         self.base_url = base_url or Config.OLLAMA_BASE_URL
@@ -175,17 +150,7 @@ class EvaluationModel:
         json_schema: Dict[str, Any],
         document_context: str = ""
     ) -> Tuple[Dict[str, Any], Usage]:
-        """
-        Extract structured JSON from OCR text using the provided schema
-
-        Args:
-            ocr_text: Raw OCR extracted text
-            json_schema: JSON schema defining the expected structure
-            document_context: Optional context about the document type
-
-        Returns:
-            Tuple of (extracted_json, usage_info)
-        """
+        
         start_time = time.time()
 
         try:
@@ -216,7 +181,6 @@ JSON:"""
             result = response.json()
             response_text = result["response"].strip()
 
-            # Use robust JSON extraction with fallback
             fallback_data = {"error": "extraction_failed", "raw_text": ocr_text[:200]}
             extracted_data, error = robust_json_extraction(response_text, fallback_data)
 

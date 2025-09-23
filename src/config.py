@@ -60,10 +60,6 @@ TOKEN_COSTS = {
 
 
 def get_filtered_model_configurations() -> List[ModelConfig]:
-    """
-    Filter model configurations to only include those with available models.
-    This function checks model availability at runtime.
-    """
     from models.registry import get_available_models, is_ocr_only_model
 
     available_models = get_available_models()
@@ -88,7 +84,6 @@ def get_filtered_model_configurations() -> List[ModelConfig]:
 
 
 def print_configuration_summary():
-    """Print a summary of the model configurations"""
     print("\n🔧 Model Configuration Summary:")
     print("=" * 50)
 

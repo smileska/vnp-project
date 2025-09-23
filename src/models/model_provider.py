@@ -122,7 +122,6 @@ JSON:"""
                 total_cost=0.0
             )
 
-            # Use robust JSON extraction
             fallback_data = {"error": "extraction_failed", "raw_text": text[:200]}
             extracted_json, error = robust_json_extraction(response_text, fallback_data)
 
@@ -178,7 +177,6 @@ JSON:"""
                 total_cost=0.0
             )
 
-            # Use robust JSON extraction
             fallback_data = {"error": "extraction_failed"}
             extracted_json, error = robust_json_extraction(response_text, fallback_data)
 

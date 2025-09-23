@@ -33,8 +33,7 @@ from model_types.models import Usage
 
 
 class OCROnlyProvider(BaseModelProvider):
-    """Base class for OCR-only providers that don't support JSON extraction"""
-
+    
     def __init__(self, model_name: str):
         super().__init__(model_name)
 
@@ -45,7 +44,6 @@ class OCROnlyProvider(BaseModelProvider):
         raise NotImplementedError("OCR-only models don't support JSON extraction from images")
 
     def _download_image(self, image_url: str) -> np.ndarray:
-        """Download and convert image to OpenCV format"""
         try:
             response = requests.get(image_url, timeout=30)
             response.raise_for_status()
@@ -62,7 +60,6 @@ class OCROnlyProvider(BaseModelProvider):
 
 
 class PaddleOCRProvider(OCROnlyProvider):
-    """PaddleOCR provider for OCR tasks"""
 
     def __init__(self):
         if not PADDLE_AVAILABLE:
@@ -100,7 +97,6 @@ class PaddleOCRProvider(OCROnlyProvider):
             raise Exception(f"PaddleOCR error: {str(e)}")
 
     def _format_to_markdown(self, results) -> str:
-        """Convert PaddleOCR results to markdown format with better structure"""
         if not results or not results[0]:
             return ""
 
@@ -140,7 +136,6 @@ class PaddleOCRProvider(OCROnlyProvider):
 
 
 class EasyOCRProvider(OCROnlyProvider):
-    """EasyOCR provider for OCR tasks"""
 
     def __init__(self):
         if not EASY_OCR_AVAILABLE:
@@ -179,7 +174,6 @@ class EasyOCRProvider(OCROnlyProvider):
             raise Exception(f"EasyOCR error: {str(e)}")
 
     def _format_to_markdown(self, results) -> str:
-        """Convert EasyOCR results to markdown format with better structure"""
         if not results:
             return ""
 
@@ -220,7 +214,6 @@ class EasyOCRProvider(OCROnlyProvider):
 
 
 class TesseractProvider(OCROnlyProvider):
-    """Tesseract OCR provider with enhanced configuration"""
 
     def __init__(self):
         if not TESSERACT_AVAILABLE:
@@ -268,7 +261,6 @@ class TesseractProvider(OCROnlyProvider):
             raise Exception(f"Tesseract OCR error: {str(e)}")
 
     def _preprocess_image(self, image: Image.Image) -> Image.Image:
-        """Preprocess image for better OCR results"""
         if image.mode != 'L':
             image = image.convert('L')
 
@@ -286,7 +278,6 @@ class TesseractProvider(OCROnlyProvider):
         return Image.fromarray(cv_image)
 
     def _perform_multi_config_ocr(self, image: Image.Image) -> str:
-        """Try multiple Tesseract configurations and return best result"""
         configs = [
             r'--oem 3 --psm 6',
             r'--oem 3 --psm 3',
@@ -313,7 +304,6 @@ class TesseractProvider(OCROnlyProvider):
         return max(results, key=len)
 
     def _format_to_markdown(self, text: str) -> str:
-        """Enhanced formatting of Tesseract output to markdown"""
         if not text or not text.strip():
             return ""
 
@@ -330,7 +320,6 @@ class TesseractProvider(OCROnlyProvider):
         return '\n'.join(formatted_lines)
 
     def _clean_ocr_text(self, text: str) -> str:
-        """Clean common OCR errors"""
         if not text:
             return ""
 
@@ -347,7 +336,6 @@ class TesseractProvider(OCROnlyProvider):
 
 
 def get_ocr_provider_availability():
-    """Check which OCR providers are available"""
     availability = {
         'paddleocr': PADDLE_AVAILABLE,
         'easyocr': EASY_OCR_AVAILABLE,
@@ -365,7 +353,6 @@ def get_ocr_provider_availability():
 
 
 def test_ocr_providers():
-    """Test all available OCR providers with a simple test"""
     print("🧪 Testing OCR Providers")
     print("=" * 30)
 

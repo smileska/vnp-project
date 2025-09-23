@@ -73,7 +73,7 @@ async def process_document_enhanced_workflow(
         extraction_model=model_config.extraction_model or "",
         json_schema={},
         direct_image_extraction=model_config.direct_image_extraction,
-        true_markdown="",  # We don't have ground truth markdown in this workflow
+        true_markdown="",
         true_json=document.ground_truth_json or {},
         workflow_type="enhanced"
     )

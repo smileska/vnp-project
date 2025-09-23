@@ -20,16 +20,9 @@ from model_types.models import BenchmarkResult, TestDocument, ModelConfig
 
 
 def robust_json_extraction(response: str) -> Tuple[Optional[dict], Optional[str]]:
-    """
-    Extract JSON from a model response that may contain markdown formatting or explanatory text.
-
-    Returns:
-        Tuple of (parsed_json, error_message)
-    """
     if not response or not response.strip():
         return None, "Empty response"
 
-    # Handle responses that explicitly say no data found
     no_data_indicators = [
         "unable to find enough information",
         "no information available",
@@ -42,10 +35,8 @@ def robust_json_extraction(response: str) -> Tuple[Optional[dict], Optional[str]
     response_lower = response.lower()
     for indicator in no_data_indicators:
         if indicator in response_lower:
-            # Return empty JSON structure based on common patterns
             return {}, None
 
-    # Clean common prefixes that models add
     cleaned = response.strip()
     prefixes_to_remove = [
         r"Based on.*?Here is the resulting JSON:\s*",
@@ -58,17 +49,11 @@ def robust_json_extraction(response: str) -> Tuple[Optional[dict], Optional[str]
     for prefix_pattern in prefixes_to_remove:
         cleaned = re.sub(prefix_pattern, "", cleaned, flags=re.IGNORECASE | re.DOTALL)
 
-    # Try multiple extraction strategies in order of preference
     strategies = [
-        # Strategy 1: Look for ```json blocks
         lambda text: re.search(r'```json\s*(\{.*?\})\s*```', text, re.DOTALL),
-        # Strategy 2: Look for ``` blocks (without json specifier)
         lambda text: re.search(r'```\s*(\{.*?\})\s*```', text, re.DOTALL),
-        # Strategy 3: Look for any complete JSON object (with proper braces)
         lambda text: re.search(r'(\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\})', text, re.DOTALL),
-        # Strategy 4: Look for JSON array
         lambda text: re.search(r'(\[.*\])', text, re.DOTALL),
-        # Strategy 5: Look for partial JSON and try to complete it
         lambda text: re.search(r'(\{.*)', text, re.DOTALL),
     ]
 
@@ -77,9 +62,7 @@ def robust_json_extraction(response: str) -> Tuple[Optional[dict], Optional[str]
         if match:
             json_str = match.group(1).strip()
 
-            # For strategy 5 (partial JSON), try to fix common issues
             if i == 5:
-                # Count braces to see if we need to close them
                 open_braces = json_str.count('{')
                 close_braces = json_str.count('}')
                 missing_braces = open_braces - close_braces
@@ -91,10 +74,8 @@ def robust_json_extraction(response: str) -> Tuple[Optional[dict], Optional[str]
                 parsed = json.loads(json_str)
                 return parsed, None
             except json.JSONDecodeError as e:
-                # If it's strategy 5 and still fails, try with empty object
                 if i == 5:
                     try:
-                        # Try to extract just the first complete object
                         first_brace = json_str.find('{')
                         if first_brace >= 0:
                             brace_count = 0
@@ -113,9 +94,8 @@ def robust_json_extraction(response: str) -> Tuple[Optional[dict], Optional[str]
                                 return json.loads(partial_json), None
                     except:
                         continue
-                continue  # Try next strategy
-
-    # If all strategies fail, return empty object as fallback
+                continue
+            
     return {}, f"Could not extract valid JSON, returning empty object. Response preview: {response[:200]}..."
 
 
@@ -149,7 +129,6 @@ async def process_document_with_model(
                     document.jsonSchema
                 )
 
-                # Handle potential string responses with embedded JSON
                 if isinstance(raw_response, str):
                     extracted_json, error = robust_json_extraction(raw_response)
                     if error:
@@ -193,7 +172,6 @@ async def process_document_with_model(
                         document.jsonSchema
                     )
 
-                    # Handle potential string responses with embedded JSON
                     if isinstance(raw_response, str):
                         extracted_json, error = robust_json_extraction(raw_response)
                         if error:
@@ -222,7 +200,7 @@ async def process_document_with_model(
                         response_part = error_str[response_start:].strip()
 
                         extracted_json, extraction_error = robust_json_extraction(response_part)
-                        if extracted_json is not None:  # Could be empty dict {}
+                        if extracted_json is not None:
                             result.predicted_json = extracted_json
                             result.usage = ocr_usage
                             print(f"✅ Recovered JSON from error message for {document.imageUrl}")
@@ -335,7 +313,6 @@ async def run_benchmark():
 
             except Exception as e:
                 print(f"    ❌ Unexpected error: {e}")
-                # Create error result
                 error_result = BenchmarkResult(
                     file_url=document.imageUrl,
                     metadata=document.metadata,
@@ -353,7 +330,6 @@ async def run_benchmark():
             progress = (completed_tasks / total_tasks) * 100
             print(f"    📊 Overall progress: {completed_tasks}/{total_tasks} ({progress:.1f}%)")
 
-    # Save results
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     results_file = os.path.join(results_dir, f"benchmark_results_{timestamp}.json")
     save_results(all_results, results_file)
