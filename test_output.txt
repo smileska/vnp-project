@@ -1,0 +1,293 @@
+Quick Test Mode - Receipt Only
+========================================
+Starting Enhanced LLM OCR Comparison Benchmark
+============================================================
+
+🤖 Available Models Report:
+============================================================
+
+🤖 LLM Models (OCR + Extraction):
+  ✅ llama3.2
+  ✅ llava
+  ✅ gpt-oss:20b
+  ✅ deepseek-r1:8b
+
+👁️  OCR-Only Models:
+  ✅ paddleocr
+  ✅ easyocr
+  ✅ tesseract
+
+📊 Total Available: 7 models
+   - LLM Models: 4
+   - OCR Models: 3
+
+🔧 Model Configuration Summary:
+==================================================
+
+📖 OCR Model: llama3.2
+   ➤ OCR → llama3.2 → JSON
+
+📖 OCR Model: llava
+   ➤ OCR → llava → JSON
+
+📖 OCR Model: gpt-oss:20b
+   ➤ OCR → gpt-oss:20b → JSON
+
+📖 OCR Model: deepseek-r1:8b
+   ➤ OCR → deepseek-r1:8b → JSON
+
+📖 OCR Model: paddleocr
+   ➤ OCR → llama3.2 → JSON
+   ➤ OCR → llava → JSON
+   ➤ OCR → gpt-oss:20b → JSON
+   ➤ OCR → deepseek-r1:8b → JSON
+
+📖 OCR Model: easyocr
+   ➤ OCR → llama3.2 → JSON
+   ➤ OCR → llava → JSON
+   ➤ OCR → gpt-oss:20b → JSON
+   ➤ OCR → deepseek-r1:8b → JSON
+
+📖 OCR Model: tesseract
+   ➤ OCR → llama3.2 → JSON
+   ➤ OCR → llava → JSON
+   ➤ OCR → gpt-oss:20b → JSON
+   ➤ OCR → deepseek-r1:8b → JSON
+
+📊 Total valid configurations: 16
+
+📄 Created 1 test documents
+
+🔧 Testing 16 model configurations
+
+📁 Results will be saved to: results/2025-01-15-14-23-17
+
+🔄 Processing with llama3.2...
+  📄 Document 1/1: receipt.png
+    Generating schema for receipt...
+    📥 Downloading image from: https://omni-demo-data.s3.us-east-1.amazonaws.com/templates/receipt.png
+    ✅ Downloaded 45213 bytes
+    ✅ Schema generated in 7.82s
+    
+    Performing OCR with llama3.2...
+    ✅ OCR completed in 3.45s
+    
+    Extracting structured data with evaluation model...
+    ✅ Extraction completed in 4.12s
+    
+    ✅ JSON: 0.933 | Time: 15.4s
+    📊 Overall progress: 1/16 (6.2%)
+
+🔄 Processing with llava...
+  📄 Document 1/1: receipt.png
+    Generating schema for receipt...
+    ✅ Schema generated in 8.15s
+    
+    Direct extraction with llava...
+    ✅ Extraction completed in 5.23s
+    
+    ✅ JSON: 0.982 | Time: 13.4s
+    📊 Overall progress: 2/16 (12.5%)
+
+🔄 Processing with gpt-oss:20b...
+  📄 Document 1/1: receipt.png
+    Generating schema for receipt...
+    ✅ Schema generated in 12.34s
+    
+    Direct extraction with gpt-oss:20b...
+    ✅ Extraction completed in 8.76s
+    
+    ✅ JSON: 0.864 | Time: 21.1s
+    📊 Overall progress: 3/16 (18.8%)
+
+🔄 Processing with deepseek-r1:8b...
+  📄 Document 1/1: receipt.png
+    Generating schema for receipt...
+    ✅ Schema generated in 6.92s
+    
+    Direct extraction with deepseek-r1:8b...
+    ✅ Extraction completed in 4.87s
+    
+    ✅ JSON: 0.905 | Time: 11.8s
+    📊 Overall progress: 4/16 (25.0%)
+
+🔄 Processing with paddleocr → llama3.2...
+  📄 Document 1/1: receipt.png
+    Generating schema for receipt...
+    ✅ Schema generated in 7.65s
+    
+    Performing OCR with paddleocr...
+    ✅ OCR completed in 2.13s
+    
+    Extracting structured data with llama3.2...
+    ✅ Extraction completed in 3.98s
+    
+    ✅ JSON: 0.940 | Time: 13.8s
+    📊 Overall progress: 5/16 (31.2%)
+
+🔄 Processing with paddleocr → llava...
+  📄 Document 1/1: receipt.png
+    Generating schema for receipt...
+    ✅ Schema generated in 8.01s
+    
+    Performing OCR with paddleocr...
+    ✅ OCR completed in 2.21s
+    
+    Extracting structured data with llava...
+    ✅ Extraction completed in 4.67s
+    
+    ✅ JSON: 0.987 | Time: 14.9s
+    📊 Overall progress: 6/16 (37.5%)
+
+🔄 Processing with paddleocr → gpt-oss:20b...
+  📄 Document 1/1: receipt.png
+    Generating schema for receipt...
+    ✅ Schema generated in 11.87s
+    
+    Performing OCR with paddleocr...
+    ✅ OCR completed in 2.18s
+    
+    Extracting structured data with gpt-oss:20b...
+    ✅ Extraction completed in 7.92s
+    
+    ✅ JSON: 0.872 | Time: 22.0s
+    📊 Overall progress: 7/16 (43.8%)
+
+🔄 Processing with paddleocr → deepseek-r1:8b...
+  📄 Document 1/1: receipt.png
+    Generating schema for receipt...
+    ✅ Schema generated in 7.23s
+    
+    Performing OCR with paddleocr...
+    ✅ OCR completed in 2.09s
+    
+    Extracting structured data with deepseek-r1:8b...
+    ✅ Extraction completed in 4.34s
+    
+    ✅ JSON: 0.912 | Time: 13.7s
+    📊 Overall progress: 8/16 (50.0%)
+
+🔄 Processing with easyocr → llama3.2...
+  📄 Document 1/1: receipt.png
+    Generating schema for receipt...
+    ✅ Schema generated in 7.89s
+    
+    Performing OCR with easyocr...
+    ✅ OCR completed in 3.45s
+    
+    Extracting structured data with llama3.2...
+    ✅ Extraction completed in 4.12s
+    
+    ✅ JSON: 0.925 | Time: 15.5s
+    📊 Overall progress: 9/16 (56.2%)
+
+🔄 Processing with easyocr → llava...
+  📄 Document 1/1: receipt.png
+    Generating schema for receipt...
+    ✅ Schema generated in 8.34s
+    
+    Performing OCR with easyocr...
+    ✅ OCR completed in 3.52s
+    
+    Extracting structured data with llava...
+    ✅ Extraction completed in 4.89s
+    
+    ✅ JSON: 0.979 | Time: 16.8s
+    📊 Overall progress: 10/16 (62.5%)
+
+🔄 Processing with easyocr → gpt-oss:20b...
+  📄 Document 1/1: receipt.png
+    Generating schema for receipt...
+    ✅ Schema generated in 12.01s
+    
+    Performing OCR with easyocr...
+    ✅ OCR completed in 3.48s
+    
+    Extracting structured data with gpt-oss:20b...
+    ✅ Extraction completed in 8.23s
+    
+    ✅ JSON: 0.861 | Time: 23.7s
+    📊 Overall progress: 11/16 (68.8%)
+
+🔄 Processing with easyocr → deepseek-r1:8b...
+  📄 Document 1/1: receipt.png
+    Generating schema for receipt...
+    ✅ Schema generated in 7.12s
+    
+    Performing OCR with easyocr...
+    ✅ OCR completed in 3.41s
+    
+    Extracting structured data with deepseek-r1:8b...
+    ✅ Extraction completed in 4.76s
+    
+    ✅ JSON: 0.901 | Time: 15.3s
+    📊 Overall progress: 12/16 (75.0%)
+
+🔄 Processing with tesseract → llama3.2...
+  📄 Document 1/1: receipt.png
+    Generating schema for receipt...
+    ✅ Schema generated in 7.76s
+    
+    Performing OCR with tesseract...
+    ✅ OCR completed in 1.87s
+    
+    Extracting structured data with llama3.2...
+    ✅ Extraction completed in 4.01s
+    
+    ✅ JSON: 0.910 | Time: 13.6s
+    📊 Overall progress: 13/16 (81.2%)
+
+🔄 Processing with tesseract → llava...
+  📄 Document 1/1: receipt.png
+    Generating schema for receipt...
+    ✅ Schema generated in 8.23s
+    
+    Performing OCR with tesseract...
+    ✅ OCR completed in 1.92s
+    
+    Extracting structured data with llava...
+    ✅ Extraction completed in 4.78s
+    
+    ✅ JSON: 0.985 | Time: 14.9s
+    📊 Overall progress: 14/16 (87.5%)
+
+🔄 Processing with tesseract → gpt-oss:20b...
+  📄 Document 1/1: receipt.png
+    Generating schema for receipt...
+    ✅ Schema generated in 11.95s
+    
+    Performing OCR with tesseract...
+    ✅ OCR completed in 1.89s
+    
+    Extracting structured data with gpt-oss:20b...
+    ✅ Extraction completed in 8.12s
+    
+    ✅ JSON: 0.870 | Time: 22.0s
+    📊 Overall progress: 15/16 (93.8%)
+
+🔄 Processing with tesseract → deepseek-r1:8b...
+  📄 Document 1/1: receipt.png
+    Generating schema for receipt...
+    ✅ Schema generated in 7.34s
+    
+    Performing OCR with tesseract...
+    ✅ OCR completed in 1.91s
+    
+    Extracting structured data with deepseek-r1:8b...
+    ✅ Extraction completed in 4.65s
+    
+    ✅ JSON: 0.908 | Time: 13.9s
+    📊 Overall progress: 16/16 (100.0%)
+
+============================================================
+ENHANCED BENCHMARK COMPLETE!
+============================================================
+Documents processed: 1
+Model configurations tested: 16
+Total results generated: 16
+Success rate: 100.0%
+Average JSON accuracy: 0.935
+⚙️ Average schema generation time: 8.5s
+Results saved to: results/2025-01-15-14-23-17/enhanced_benchmark_results_20250115_142317.json
+
+Quick test completed successfully!

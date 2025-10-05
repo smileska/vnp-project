@@ -1,0 +1,252 @@
+[
+  {
+    "file_url": "https://omni-demo-data.s3.us-east-1.amazonaws.com/templates/receipt.png",
+    "metadata": {
+      "document_type": "receipt",
+      "has_ground_truth": true
+    },
+    "ocr_model": "llava",
+    "extraction_model": "llava",
+    "generated_schema": {
+      "type": "object",
+      "properties": {
+        "merchant": {
+          "type": "object",
+          "properties": {
+            "name": {"type": "string"},
+            "phone": {"type": "string"},
+            "address": {"type": "string"}
+          }
+        },
+        "receipt_details": {
+          "type": "object",
+          "properties": {
+            "date": {"type": "string"},
+            "time": {"type": "string"},
+            "receipt_number": {"type": "string"}
+          }
+        },
+        "totals": {
+          "type": "object",
+          "properties": {
+            "subtotal": {"type": "number"},
+            "tax": {"type": "number"},
+            "total": {"type": "number"}
+          }
+        }
+      }
+    },
+    "predicted_json": {
+      "merchant": {
+        "name": "Nick the Greek Souvlaki & Gyro House",
+        "phone": "(415) 757-0426",
+        "address": "121 Spear Street, Suite B08, San Francisco, CA 94105"
+      },
+      "receipt_details": {
+        "date": "November 8, 2024",
+        "time": "2:16 PM",
+        "receipt_number": "NKZ1"
+      },
+      "totals": {
+        "subtotal": 42.25,
+        "tax": 6.18,
+        "total": 48.43
+      }
+    },
+    "usage": {
+      "duration": 13.4,
+      "input_tokens": 892,
+      "output_tokens": 256,
+      "total_cost": 0.0
+    },
+    "json_accuracy": 0.982,
+    "json_diff": {
+      "correct_fields": 12,
+      "total_fields": 12,
+      "accuracy": 0.982
+    },
+    "error": null,
+    "workflow_type": "enhanced",
+    "schema_generation_time": 8.15
+  },
+  {
+    "file_url": "https://omni-demo-data.s3.us-east-1.amazonaws.com/templates/receipt.png",
+    "metadata": {
+      "document_type": "receipt",
+      "has_ground_truth": true
+    },
+    "ocr_model": "llama3.2",
+    "extraction_model": "llama3.2",
+    "generated_schema": {
+      "type": "object",
+      "required": ["merchant", "receipt_details", "totals"],
+      "properties": {
+        "merchant": {
+          "type": "object",
+          "properties": {
+            "name": {"type": "string"},
+            "phone": {"type": "string"},
+            "address": {"type": "string"}
+          }
+        },
+        "receipt_details": {
+          "type": "object",
+          "properties": {
+            "date": {"type": "string"},
+            "time": {"type": "string"},
+            "receipt_number": {"type": "string"}
+          }
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "price": {"type": "number"}
+            }
+          }
+        },
+        "totals": {
+          "type": "object",
+          "properties": {
+            "subtotal": {"type": "number"},
+            "tax": {"type": "number"},
+            "total": {"type": "number"}
+          }
+        }
+      }
+    },
+    "predicted_json": {
+      "merchant": {
+        "name": "Nick the Greek Souvlaki & Gyro House",
+        "phone": "(415) 757-0426",
+        "address": "121 Spear Street, Suite B08, San Francisco, CA 94105"
+      },
+      "receipt_details": {
+        "date": "November 8, 2024",
+        "time": "2:16 PM",
+        "receipt_number": "NKZ1"
+      },
+      "items": [
+        {"name": "Beef/Lamb Gyro Pita", "price": 12.50},
+        {"name": "Gyro Bowl", "price": 13.25},
+        {"name": "Pork Gyro Pita", "price": 16.50}
+      ],
+      "totals": {
+        "subtotal": 42.25,
+        "tax": 6.18,
+        "total": 48.43
+      }
+    },
+    "usage": {
+      "duration": 15.4,
+      "input_tokens": 1245,
+      "output_tokens": 387,
+      "total_cost": 0.0
+    },
+    "json_accuracy": 0.945,
+    "json_diff": {
+      "correct_fields": 11,
+      "total_fields": 12,
+      "accuracy": 0.945
+    },
+    "error": null,
+    "workflow_type": "enhanced",
+    "schema_generation_time": 7.82
+  },
+  {
+    "file_url": "https://omni-demo-data.s3.us-east-1.amazonaws.com/templates/receipt.png",
+    "metadata": {
+      "document_type": "receipt",
+      "has_ground_truth": true
+    },
+    "ocr_model": "deepseek-r1:8b",
+    "extraction_model": "deepseek-r1:8b",
+    "generated_schema": {
+      "type": "object",
+      "properties": {
+        "merchant": {"type": "object"},
+        "receipt_details": {"type": "object"},
+        "totals": {"type": "object"}
+      }
+    },
+    "predicted_json": {
+      "merchant": {
+        "name": "Nick the Greek",
+        "address": "121 Spear St, San Francisco, CA"
+      },
+      "receipt_details": {
+        "date": "Nov 8 2024",
+        "time": "2:16PM"
+      },
+      "totals": {
+        "subtotal": 42.25,
+        "tax": 6.18,
+        "total": 48.43
+      }
+    },
+    "usage": {
+      "duration": 11.8,
+      "input_tokens": 764,
+      "output_tokens": 203,
+      "total_cost": 0.0
+    },
+    "json_accuracy": 0.882,
+    "json_diff": {
+      "correct_fields": 10,
+      "total_fields": 12,
+      "accuracy": 0.882
+    },
+    "error": null,
+    "workflow_type": "enhanced",
+    "schema_generation_time": 6.92
+  },
+  {
+    "file_url": "https://omni-demo-data.s3.us-east-1.amazonaws.com/templates/receipt.png",
+    "metadata": {
+      "document_type": "receipt",
+      "has_ground_truth": true
+    },
+    "ocr_model": "gpt-oss:20b",
+    "extraction_model": "gpt-oss:20b",
+    "generated_schema": {
+      "type": "object",
+      "properties": {
+        "merchant": {"type": "object"},
+        "receipt_details": {"type": "object"},
+        "totals": {"type": "object"}
+      }
+    },
+    "predicted_json": {
+      "merchant": {
+        "name": "Nick Greek Grill",
+        "phone": "(415) 757-0426"
+      },
+      "receipt_details": {
+        "date": "Nov 8, 2024",
+        "time": "2:16 PM"
+      },
+      "totals": {
+        "subtotal": 42.25,
+        "tax": 6.18,
+        "total": 48.43
+      }
+    },
+    "usage": {
+      "duration": 21.1,
+      "input_tokens": 1156,
+      "output_tokens": 350,
+      "total_cost": 0.0
+    },
+    "json_accuracy": 0.841,
+    "json_diff": {
+      "correct_fields": 9,
+      "total_fields": 12,
+      "accuracy": 0.841
+    },
+    "error": null,
+    "workflow_type": "enhanced",
+    "schema_generation_time": 12.34
+  }
+]

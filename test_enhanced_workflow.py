@@ -37,22 +37,6 @@ def main():
             ],
             "types": ["receipt"],
             "ground_truths": [receipt_ground_truth]
-        },
-        {
-            "name": "Invoice Analysis (using receipt image as test)",
-            "images": [
-                "https://omni-demo-data.s3.us-east-1.amazonaws.com/templates/receipt.png"
-            ],
-            "types": ["invoice"],
-            "ground_truths": [None]
-        },
-        {
-            "name": "Form Analysis (using receipt image as test)",
-            "images": [
-                "https://omni-demo-data.s3.us-east-1.amazonaws.com/templates/receipt.png"
-            ],
-            "types": ["form"],
-            "ground_truths": [None]
         }
     ]
 
@@ -89,18 +73,6 @@ def main():
 
     print(f"\nTest Results: {completed_scenarios}/{total_scenarios} scenarios completed!")
 
-    print(f"\nWhat this test demonstrates:")
-    print("1. Schema generation for different document types (receipt, invoice, form)")
-    print("2. OCR extraction using your available models")
-    print("3. AI-powered structured data extraction")
-    print("4. Accuracy measurement (for receipt scenario with ground truth)")
-    print("5. Performance timing for each component")
-
-    print(f"\nNext steps:")
-    print("1. Check the results in: cd dashboard && streamlit run enhanced_app.py")
-    print("2. Compare how different models handle the same image as different document types")
-    print("3. Add your own images by replacing URLs in the test scenarios")
-
 
 def quick_test():
     print("Quick Test Mode - Receipt Only")
@@ -131,11 +103,6 @@ def quick_test():
     try:
         asyncio.run(run_enhanced_benchmark(test_images, document_types, ground_truths))
         print("Quick test completed successfully!")
-        print("\nThis test:")
-        print("- Generated a schema by analyzing the receipt image")
-        print("- Performed OCR to extract text")
-        print("- Used AI to convert text to structured JSON")
-        print("- Calculated accuracy against the known ground truth")
     except Exception as e:
         print(f"Quick test failed: {e}")
         import traceback

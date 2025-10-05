@@ -256,7 +256,3 @@ async def run_enhanced_benchmark(test_images: list, document_types: list = None,
         print(f"⚙Average schema generation time: {avg_schema_time:.1f}s")
 
     print(f"Results saved to: {results_file}")
-    print("\nNext steps:")
-    print("1. View detailed results in dashboard:")
-    print("   cd dashboard && streamlit run enhanced_app.py")
-    print("2. Compare enhanced vs traditional workflows")
